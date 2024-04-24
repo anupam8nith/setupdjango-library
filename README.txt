@@ -1,0 +1,1 @@
+Making a tool to create ready-to-code Django projects.
