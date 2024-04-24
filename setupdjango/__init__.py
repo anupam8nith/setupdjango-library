@@ -1,10 +1,13 @@
 import argparse
 from cookiecutter import generate
+import json
 import os
 import subprocess
 import venv
+import shutil
+import tempfile  # For creating a temporary directory
 
-def create_project(project_name, project_path, create_venv=False):  
+def create_project(project_name, project_path, create_venv=False):
     """
     Creates a new Django project using Cookiecutter. Provides the option for virtual environment setup.
 
@@ -13,19 +16,26 @@ def create_project(project_name, project_path, create_venv=False):
         project_path (str): The path where the project should be created.
         create_venv (bool): Whether to create a virtual environment (default: False)
     """
-    cwd = os.getcwd()
-
-    # Print the current working directory
-    print(cwd)
+    os.makedirs(project_path, exist_ok=True)  # Ensure target directory exists
     
-    template_path = 'base_django_project'
+    #create the cookiecutter.json inside the project_path with provide value of project_name by the user
+
+    # Assuming template is within 'setupdjango'
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    template_path = os.path.join(current_dir, 'templates', 'base_django_project')
 
     try:
-        generate.generate_files(  # Using Cookiecutter's generator 
-            repo_dir=template_path,
-            output_dir=project_path
-        ) 
+        # Generate into a temporary directory
+        print("loc1")
+        with tempfile.TemporaryDirectory() as temp_dir:
+            generate.generate_files(
+                repo_dir=template_path,
+                output_dir=temp_dir
+            ) 
 
+            # Copy the generated project to the target location
+            shutil.copytree(temp_dir, project_path)
+        print("loc2")
         if create_venv: 
             create_venv(project_path, '.venv')  
         
@@ -84,3 +94,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    
