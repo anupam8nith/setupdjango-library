@@ -1,10 +1,10 @@
 import argparse
-import cookiecutter
+from cookiecutter import generate
 import os
 import subprocess
 import venv
 
-def create_project(project_name, project_path, create_venv=False):  # Add default value
+def create_project(project_name, project_path, create_venv=False):  
     """
     Creates a new Django project using Cookiecutter. Provides the option for virtual environment setup.
 
@@ -13,15 +13,23 @@ def create_project(project_name, project_path, create_venv=False):  # Add defaul
         project_path (str): The path where the project should be created.
         create_venv (bool): Whether to create a virtual environment (default: False)
     """
-    template_path = 'templates/base_django_project'
+    cwd = os.getcwd()
+
+    # Print the current working directory
+    print(cwd)
+    
+    template_path = 'base_django_project'
 
     try:
-        cookiecutter.main.cookiecutter(template_path, output_dir=project_path)
+        generate.generate_files(  # Using Cookiecutter's generator 
+            repo_dir=template_path,
+            output_dir=project_path
+        ) 
 
-        if create_venv:  # Use the new argument
-            create_venv(project_path, '.venv')  # Create and activate '.venv'
+        if create_venv: 
+            create_venv(project_path, '.venv')  
         
-        install_dependencies(project_path)  # Install either way
+        install_dependencies(project_path)  
 
     except Exception as e:
         print(f"An error occurred: {e}")
