@@ -68,7 +68,7 @@ def install_dependencies(project_path):
 def main():
     parser = argparse.ArgumentParser(description="Create a ready-to-code Django project setup.")
     parser.add_argument("project_name", help="The name of your Django project.")
-    parser.add_argument("project_path", help="The desired location for your project.")
+    parser.add_argument("project_path", default=os.getcwd(), help="The desired location for your project.")
     parser.add_argument("--venv", action="store_true", help="Create and activate a virtual environment.")
 
     args = parser.parse_args()
