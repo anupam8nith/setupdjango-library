@@ -1,101 +1,124 @@
 import argparse
-from cookiecutter import generate
-from cookiecutter.cli import main
+from cookiecutter.main import cookiecutter
+from cookiecutter.exceptions import CookiecutterException
 import json
+import logging
 import os
 import subprocess
-import venv
-import shutil
-import tempfile  # For creating a temporary directory
+import unittest
+import logging
+import os
 
-def create_project(project_name, project_path, create_venv=False):
-    """
-    Creates a new Django project using Cookiecutter. Provides the option for virtual environment setup.
+logging.basicConfig(
+    level=logging.INFO, 
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
 
-    Args:
-        project_name (str): The name of the project.
-        project_path (str): The path where the project should be created.
-        create_venv (bool): Whether to create a virtual environment (default: False)
+def create_project(project_name, project_path, **kwargs):
     """
-    os.makedirs(project_path, exist_ok=True)
+    Creates a Django project using Cookiecutter.
+    :param project_name: The name of the project.
+    :param project_path: The path where the project will be created.
+    """
+    print("Received arguments:", project_name, project_path, kwargs)
     
-    #create a temporary file cookiecutter.json  and provide value of project_name by the user in cookiecutter.json and copy inside the project
+    if not os.path.exists(project_path):
+        os.makedirs(project_path)
 
-    # Assuming template is within 'setupdjango'
+    # Determine template path dynamically because we will generate files from here.
     current_dir = os.path.dirname(os.path.abspath(__file__))
     template_path = os.path.join(current_dir, 'templates', 'base_django_project')
+    
+    print(template_path)
+    print(project_path)
+
+    if not os.path.exists(template_path):
+        logging.error("Template path does not exist:  %s", template_path)
+        return
 
     try:
-        # Generate into a temporary directory
-        with tempfile.TemporaryDirectory() as temp_dir:
-            generate.generate_files(
-                repo_dir=template_path,
-                context={'cookiecutter.project_name': project_name},  # Pass context 
-                output_dir=project_path,
-                overwrite_if_exists=True 
-            )
- 
-
-            # Copy the generated project to the target location
-            shutil.copytree(temp_dir, project_path)
-
-        if create_venv: 
-            create_venv(project_path, '.venv')  
-        
-        install_dependencies(project_path)  
-
-    except Exception as e:
-        print(f"An error occurred: {e}")
-
-
-def create_venv(project_path, virtual_env_name):
-    """
-    Creates a virtual environment and activates it.
-
-    param: project_path (str): The path to the Django project.
-    param: virtual_env_name (str): The name of the virtual environment.
-    """
-    env_path = os.path.join(project_path, virtual_env_name)
-    venv.create(env_path, with_pip=True)  # Create the virtual environment
-
-    # Activation scripts differ across operating systems
-    if os.name == 'nt':  # Windows
-        activate_script = os.path.join(env_path, 'Scripts', 'activate.bat')
-    else:  # Linux/macOS
-        activate_script = os.path.join(env_path, 'bin', 'activate')
-
-    try:
-        subprocess.check_call(['source', activate_script])
-    except subprocess.CalledProcessError as e:
-        print(f"Virtual environment activation failed: {e}")
-
+        print("Generating project...")
+        cookiecutter(
+            template_path,
+            no_input=False,
+        )
+        logging.info("Project generated successfully!")
+    except CookiecutterException as e:  
+        logging.error("Cookiecutter error: %s", e)  
+    except OSError as e:  
+        logging.error("Error accessing the template or project path: %s", e)
+    except Exception as e: 
+        logging.error("An unexpected error occurred: %s", e)
 
 
 def install_dependencies(project_path):
     """
     Installs dependencies from a requirements.txt file.
-
-    param: project_path (str): The path to the generated Django project.
+    :param project_path: The path to the generated Django project.
     """
-    requirements_file = project_path + '/requirements.txt' 
+    requirements_file = os.path.join(project_path, 'requirements.txt')
 
     try:
+        print("Installing dependencies")
         subprocess.check_call(['pip', 'install', '-r', requirements_file])
     except subprocess.CalledProcessError as e:
         print(f"Dependency installation failed: {e}")
 
-
 def main():
-    parser = argparse.ArgumentParser(description="Create a ready-to-code Django project setup.")
-    parser.add_argument("project_name", help="The name of your Django project.")
-    parser.add_argument("project_path", default=os.getcwd(), help="The desired location for your project.")
-    parser.add_argument("--venv", action="store_true", help="Create and activate a virtual environment.")
+    logging.basicConfig(level=logging.INFO)
+    parser = argparse.ArgumentParser(description="Setup a ready-to-code Django environment")
+    subparsers = parser.add_subparsers()
+
+    # 'create' command
+    create_parser = subparsers.add_parser('create')
+    create_parser.add_argument('project_name')
+    create_parser.add_argument('project_path', nargs='?', default=os.getcwd(), help="The desired location for your project (Defaults to the current directory).")
+    create_parser.set_defaults(func=create_project)
+
+    # 'install' command
+    install_parser = subparsers.add_parser('install')
+    install_parser.add_argument('-r', '--requirements', type=str, help="Path to requirements.txt")
+    install_parser.set_defaults(func=install_dependencies)
 
     args = parser.parse_args()
-    print("Starting to create....")
-    create_project(args.project_name, args.project_path, args.venv)  # Pass venv option
 
-if __name__ == "__main__":
-    print("Calling Main")
-    main()
+    try:
+        args.func(**vars(args))
+    except Exception as e:
+        logging.error(f"An error occurred: {e}")
+
+# class TestSetupDjango(unittest.TestCase):
+#     def test(self):
+#         # Test Case 1: Successful project creation
+#         print("Test Case 1:")
+#         # logging.info("Test Case 1: project creation started")
+#         subprocess.check_call(['setupdjango', 'create', 'test_project', '/Users/anupamkumar/Documents/myProjects/'])
+
+#         # Adjust the assertion
+#         project_path = os.path.join('/Users/anupamkumar/Documents/myProjects/', 'test_project')
+#         print(project_path)
+#         self.assertTrue(os.path.exists(project_path))
+#         self.assertTrue(os.path.isfile(os.path.join(project_path, 'manage.py')))
+
+#         # Test Case 2: Project creation with a different path
+#         print("Test Case 2:")
+#         test_dir = "my_projects"
+#         os.makedirs(test_dir)
+#         subprocess.check_call(['setupdjango', 'create', 'another_project', test_dir])
+#         self.assertTrue(os.path.exists(os.path.join(test_dir, 'another_project')))
+
+#         # Test Case 3: Handling errors (e.g., template not found)
+#         print("Test Case 3:")
+#         old_template = os.environ.get('COOKIECUTTER_TEMPLATE')  # Store original setting
+#         os.environ['COOKIECUTTER_TEMPLATE'] = 'nonexistent_template'  # Simulate error
+#         with self.assertRaises(subprocess.CalledProcessError):  # Expect an error
+#             subprocess.check_call(['setupdjango', 'create', 'error_project', '.'])
+#         os.environ['COOKIECUTTER_TEMPLATE'] = old_template  # Restore setting
+
+# if __name__ == '__main__':
+#     unittest.main()
+    # create_project('test_project', "/Users/anupamkumar/Documents/myProjects/")
     
+if __name__ == "__main__":
+    print("Creating Project Setup")
+    main()
