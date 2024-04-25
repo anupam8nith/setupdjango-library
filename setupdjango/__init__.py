@@ -1,5 +1,6 @@
 import argparse
 from cookiecutter import generate
+from cookiecutter.cli import main
 import json
 import os
 import subprocess
@@ -16,9 +17,9 @@ def create_project(project_name, project_path, create_venv=False):
         project_path (str): The path where the project should be created.
         create_venv (bool): Whether to create a virtual environment (default: False)
     """
-    os.makedirs(project_path, exist_ok=True)  # Ensure target directory exists
+    os.makedirs(project_path, exist_ok=True)
     
-    #create the cookiecutter.json inside the project_path with provide value of project_name by the user
+    #create a temporary file cookiecutter.json  and provide value of project_name by the user in cookiecutter.json and copy inside the project
 
     # Assuming template is within 'setupdjango'
     current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -26,16 +27,18 @@ def create_project(project_name, project_path, create_venv=False):
 
     try:
         # Generate into a temporary directory
-        print("loc1")
         with tempfile.TemporaryDirectory() as temp_dir:
             generate.generate_files(
                 repo_dir=template_path,
-                output_dir=temp_dir
-            ) 
+                context={'cookiecutter.project_name': project_name},  # Pass context 
+                output_dir=project_path,
+                overwrite_if_exists=True 
+            )
+ 
 
             # Copy the generated project to the target location
             shutil.copytree(temp_dir, project_path)
-        print("loc2")
+
         if create_venv: 
             create_venv(project_path, '.venv')  
         
@@ -89,9 +92,10 @@ def main():
     parser.add_argument("--venv", action="store_true", help="Create and activate a virtual environment.")
 
     args = parser.parse_args()
-
+    print("Starting to create....")
     create_project(args.project_name, args.project_path, args.venv)  # Pass venv option
 
 if __name__ == "__main__":
+    print("Calling Main")
     main()
     
