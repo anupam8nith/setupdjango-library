@@ -29,8 +29,8 @@ def create_project(project_name, project_path, **kwargs):
     current_dir = os.path.dirname(os.path.abspath(__file__))
     template_path = os.path.join(current_dir, 'templates', 'base_django_project')
     
-    print(template_path)
-    print(project_path)
+    # print(template_path)
+    # print(project_path)
 
     if not os.path.exists(template_path):
         logging.error("Template path does not exist:  %s", template_path)
@@ -40,6 +40,7 @@ def create_project(project_name, project_path, **kwargs):
         print("Generating project...")
         cookiecutter(
             template_path,
+            output_dir=project_path,
             no_input=False,
         )
         logging.info("Project generated successfully!")
