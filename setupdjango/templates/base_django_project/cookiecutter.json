@@ -1,3 +1,6 @@
 {
-    "project_name": "MyDjangoProject"
+    "project_name": "MyDjangoProject",
+    "_copy_without_render": [
+        "*.html"
+    ]
 }
