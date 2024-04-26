@@ -1,9 +1,8 @@
 import argparse
-import json
 import logging
 import os
+import platform
 import subprocess
-import unittest
 
 from cookiecutter.main import cookiecutter
 from cookiecutter.exceptions import CookiecutterException
@@ -36,13 +35,13 @@ def create_project(project_name, project_path, **kwargs):
         return
 
     try:
-        print("Generating project...")
+        print("Generating Django project setup...")
         cookiecutter(
             template_path,
             output_dir=project_path,
             no_input=False,
         )
-        logging.info("Project generated successfully!")
+        logging.info("Django project setup generated successfully!")
     except CookiecutterException as e:
         logging.error("Cookiecutter error: %s", e)
     except OSError as e:
@@ -51,21 +50,46 @@ def create_project(project_name, project_path, **kwargs):
         logging.error("An unexpected error occurred: %s", e)
 
 
-def install_dependencies(project_path, requirements_file):
-    """
-    Installs dependencies from a requirements.txt file.
-    :param project_path (str): The path to the generated Django project.
-    :param requirements_file (str, optional): The path to the requirements.txt file.
-                                       Defaults to 'requirements.txt' in the project path.
-    """
-    if requirements_file is None:
-        requirements_file = os.path.join(project_path, "requirements.txt")
+def install_dependencies(project_path, requirements=None):
+    """Installs dependencies, automatically finding and activating a virtual environment.
 
-    try:
-        print("Installing dependencies")
-        subprocess.check_call(["pip", "install", "-r", requirements_file])
-    except subprocess.CalledProcessError as e:
-        print(f"Dependency installation failed: {e}")
+    Args:
+        project_path (str): The root path of the project.
+        requirement_file_path (str, optional): The path to the requirements file. 
+                                               Defaults to 'requirements.txt' in project_path.
+    """
+    if requirements is None:
+        requirements = os.path.join(project_path, 'requirements.txt')
+
+    if os.path.exists(requirements):
+        possible_venv_paths = [
+            os.path.join(project_path, 'venv'),
+            os.path.join(project_path, '.venv'),
+            os.path.join(project_path, 'env'),
+            os.path.join(project_path, '.venv'),
+        ]
+
+        for venv_path in possible_venv_paths:
+            if os.path.exists(venv_path):
+                print("Virtual environment found ...")
+                # subprocess.call(["pip", "install", "--upgrade", "pip"])
+                subprocess.call([venv_path+"/Scripts/pip", "install", "-r", requirements]) 
+                return 
+
+        # Virtual environment not found, provide guidance
+        print("Virtual environment not found.")
+        print(f"Please create a virtual environment in your project directory with one of the following names: {', '.join(possible_venv_names)}")
+        print("Instructions:")
+        if platform.system() == "Windows":
+            print("  1. Open a command prompt in your project directory")
+            print("  2. Run (for example): python -m venv venv") 
+        else:
+            print("  1. Open a terminal in your project directory")
+            print("  2. Run (for example): python3 -m venv venv")
+        print("  3. Rerun the installation script.")
+
+    else:
+        print(f"Requirements file not found at: {requirements}")
 
 
 def main():
