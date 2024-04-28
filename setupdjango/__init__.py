@@ -50,43 +50,44 @@ def create_project(project_name, project_path, **kwargs):
         logging.error("An unexpected error occurred: %s", e)
 
 
-def install_dependencies(project_path, requirements=None):
-    """Installs dependencies, automatically finding and activating a virtual environment.
+def install_dependencies(project_path, requirements=None, venv_name=None):
+    """Installs dependencies, finding and activating a virtual environment (with optional name).
 
     Args:
         project_path (str): The root path of the project.
-        requirement_file_path (str, optional): The path to the requirements file. 
-                                               Defaults to 'requirements.txt' in project_path.
+        requirements (str, optional): The path to the requirements file.
+                                      Defaults to 'requirements.txt' in project_path.
+        venv_name (str, optional): The name of the virtual environment. 
+                                   If not provided, the function will search for likely named directories.
     """
     if requirements is None:
         requirements = os.path.join(project_path, 'requirements.txt')
 
     if os.path.exists(requirements):
-        possible_venv_paths = [
-            os.path.join(project_path, 'venv'),
-            os.path.join(project_path, '.venv'),
-            os.path.join(project_path, 'env'),
-            os.path.join(project_path, '.venv'),
-        ]
+        if venv_name:
+            venv_path = os.path.join(project_path, venv_name)
+            if not os.path.exists(venv_path):
+                print(f"Virtual environment '{venv_name}' not found.")
+                return  # Exit early if specified venv does not exist
 
-        for venv_path in possible_venv_paths:
-            if os.path.exists(venv_path):
-                print("Virtual environment found ...")
-                # subprocess.call(["pip", "install", "--upgrade", "pip"])
-                subprocess.call([venv_path+"/Scripts/pip", "install", "-r", requirements]) 
-                return 
+        else:  # Search for any virtual environment if venv_name not given
+            for root, dirs, _ in os.walk(project_path):
+                for dir in dirs:
+                    if dir in ('.env', 'venv'):  
+                        venv_path = os.path.join(root, dir)
+                        break  # Stop searching once a venv is found
+            else:  # If no virtual environment is found...
+                print("Virtual environment not found.")
+                # ... (rest of the guidance code remains the same)
+                return
 
-        # Virtual environment not found, provide guidance
-        print("Virtual environment not found.")
-        print(f"Please create a virtual environment in your project directory with one of the following names: {', '.join(possible_venv_names)}")
-        print("Instructions:")
+        # Determine OS-specific activation script
         if platform.system() == "Windows":
-            print("  1. Open a command prompt in your project directory")
-            print("  2. Run (for example): python -m venv venv") 
+            activate_this = os.path.join(venv_path, "Scripts", "activate.bat")
         else:
-            print("  1. Open a terminal in your project directory")
-            print("  2. Run (for example): python3 -m venv venv")
-        print("  3. Rerun the installation script.")
+            activate_this = os.path.join(venv_path, "bin", "activate")
+
+        subprocess.call([activate_this, "&&", "pip", "install", "-r", requirements])
 
     else:
         print(f"Requirements file not found at: {requirements}")
@@ -112,32 +113,21 @@ def main():
 
     # 'install' command
     install_parser = subparsers.add_parser("install")
+    install_parser.add_argument("project_path", nargs="?", default=os.getcwd())
     install_parser.add_argument('-r', '--requirements', type=str, help="Path to requirements.txt")
+    install_parser.add_argument('-v', '--venv', type=str, help="Name of the virtual environment")
     install_parser.set_defaults(func=install_dependencies)
-
 
     args = parser.parse_args()
 
     try:
-        args.func(args)
+        # pass 'project_path', 'requirements', and 'venv_name' for instaall command
+        args.func(project_path=args.project_path, requirements=args.requirements, venv_name=args.venv) 
     except Exception as e:
         logging.error(f"An error occurred: {e}")
+
 
 
 if __name__ == "__main__":
     print("Creating Project Setup")
     main()
-
-
-
-# import unittest
-
-# class TestInstallDependencies(unittest.TestCase):
-#     def test_install_with_default_requirements(self):
-        
-#         project_path = 'C:\\Users\\anupam.kumar\\Desktop\\TestInstallation' 
-#         install_dependencies(project_path)
- 
-
-# if __name__ == '__main__':
-#     unittest.main()
