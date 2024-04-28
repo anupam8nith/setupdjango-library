@@ -27,13 +27,9 @@ def create_project(project_name, project_path, **kwargs):
     current_dir = os.path.dirname(os.path.abspath(__file__))
     template_path = os.path.join(current_dir, "templates", "base_django_project")
 
-    # print(template_path)
-    # print(project_path)
-
     if not os.path.exists(template_path):
         logging.error("Template path does not exist:  %s", template_path)
         return
-
     try:
         print("Generating Django project setup...")
         cookiecutter(
@@ -53,11 +49,10 @@ def create_project(project_name, project_path, **kwargs):
 def install_dependencies(project_path, requirements=None, venv_name=None):
     """Installs dependencies, finding and activating a virtual environment (with optional name).
 
-    Args:
-        project_path (str): The root path of the project.
+    param: project_path (str): The root path of the project.
         requirements (str, optional): The path to the requirements file.
                                       Defaults to 'requirements.txt' in project_path.
-        venv_name (str, optional): The name of the virtual environment. 
+    param: venv_name (str, optional): The name of the virtual environment. 
                                    If not provided, the function will search for likely named directories.
     """
     if requirements is None:
