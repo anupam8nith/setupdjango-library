@@ -119,7 +119,7 @@ def main():
     args = parser.parse_args()
 
     try:
-        args.func(**vars(args))
+        args.func(args)
     except Exception as e:
         logging.error(f"An error occurred: {e}")
 
@@ -127,3 +127,17 @@ def main():
 if __name__ == "__main__":
     print("Creating Project Setup")
     main()
+
+
+
+# import unittest
+
+# class TestInstallDependencies(unittest.TestCase):
+#     def test_install_with_default_requirements(self):
+        
+#         project_path = 'C:\\Users\\anupam.kumar\\Desktop\\TestInstallation' 
+#         install_dependencies(project_path)
+ 
+
+# if __name__ == '__main__':
+#     unittest.main()
