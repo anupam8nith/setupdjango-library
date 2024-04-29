@@ -4,6 +4,7 @@ import os
 import platform
 import subprocess
 
+
 from cookiecutter.main import cookiecutter
 from cookiecutter.exceptions import CookiecutterException
 
@@ -43,26 +44,26 @@ def create_project(project_name, project_path, **kwargs):
         logging.error("An unexpected error occurred: %s", e)
 
 
-def install_dependencies(project_path, requirements=None, venv_name=None):
+def install_dependencies(project_path, requirements=None, venv=None, **kwargs):
     """Installs dependencies, finding and activating a virtual environment (with optional name).
 
     param: project_path (str): The root path of the project.
         requirements (str, optional): The path to the requirements file.
                                       Defaults to 'requirements.txt' in project_path.
-    param: venv_name (str, optional): The name of the virtual environment. 
+    param: venv (str, optional): The name of the virtual environment. 
                                    If not provided, the function will search for likely named directories.
     """
     if requirements is None:
         requirements = os.path.join(project_path, 'requirements.txt')
 
     if os.path.exists(requirements):
-        if venv_name:
-            venv_path = os.path.join(project_path, venv_name)
+        if venv:
+            venv_path = os.path.join(project_path, venv)
             if not os.path.exists(venv_path):
-                print(f"Virtual environment '{venv_name}' not found.")
+                print(f"Virtual environment '{venv}' not found.")
                 return  # Exit early if specified venv does not exist
 
-        else:  # Search for any virtual environment if venv_name not given
+        else:  # Search for any virtual environment if venv not given
                 print("Virtual environment not found.")
                 # ... (rest of the guidance code remains the same)
                 return
