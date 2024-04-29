@@ -14,30 +14,27 @@ logging.basicConfig(
 
 def create_project(project_name, project_path, **kwargs):
     """
-    Creates a Django project using Cookiecutter.
+    Creates a Django project setup using Cookiecutter from a GitHub repository.
+
     :param project_name: The name of the project.
     :param project_path: The path where the project will be created.
     """
-    # print("Received arguments:", project_name, project_path, kwargs)
 
-    if not os.path.exists(project_path):
-        os.makedirs(project_path)
+    # Construct the correct GitHub raw template URL
+    template_url = "https://github.com/anupam8nith/django_template_basic"
 
-    # Determine template path dynamically because we will generate files from here.
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    template_path = os.path.join(current_dir, "templates", "base_django_project")
-
-    if not os.path.exists(template_path):
-        logging.error("Template path does not exist:  %s", template_path)
-        return
     try:
+        if not os.path.exists(project_path):
+            os.makedirs(project_path)
+
         print("Generating Django project setup...")
         cookiecutter(
-            template_path,
+            template_url,  # Use the raw URL
             output_dir=project_path,
             no_input=False,
         )
         logging.info("Django project setup generated successfully!")
+
     except CookiecutterException as e:
         logging.error("Cookiecutter error: %s", e)
     except OSError as e:
@@ -66,12 +63,6 @@ def install_dependencies(project_path, requirements=None, venv_name=None):
                 return  # Exit early if specified venv does not exist
 
         else:  # Search for any virtual environment if venv_name not given
-            for root, dirs, _ in os.walk(project_path):
-                for dir in dirs:
-                    if dir in ('.env', 'venv'):  
-                        venv_path = os.path.join(root, dir)
-                        break  # Stop searching once a venv is found
-            else:  # If no virtual environment is found...
                 print("Virtual environment not found.")
                 # ... (rest of the guidance code remains the same)
                 return
@@ -116,8 +107,7 @@ def main():
     args = parser.parse_args()
 
     try:
-        # pass 'project_path', 'requirements', and 'venv_name' for instaall command
-        args.func(project_path=args.project_path, requirements=args.requirements, venv_name=args.venv) 
+        args.func(**vars(args))
     except Exception as e:
         logging.error(f"An error occurred: {e}")
 
