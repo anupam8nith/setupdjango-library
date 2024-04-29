@@ -4,7 +4,6 @@ import os
 import platform
 import subprocess
 
-
 from cookiecutter.main import cookiecutter
 from cookiecutter.exceptions import CookiecutterException
 
@@ -50,11 +49,11 @@ def install_dependencies(project_path, requirements=None, venv=None, **kwargs):
     param: project_path (str): The root path of the project.
         requirements (str, optional): The path to the requirements file.
                                       Defaults to 'requirements.txt' in project_path.
-    param: venv (str, optional): The name of the virtual environment. 
+    param: venv (str, optional): The name of the virtual environment.
                                    If not provided, the function will search for likely named directories.
     """
     if requirements is None:
-        requirements = os.path.join(project_path, 'requirements.txt')
+        requirements = os.path.join(project_path, "requirements.txt")
 
     if os.path.exists(requirements):
         if venv:
@@ -63,10 +62,9 @@ def install_dependencies(project_path, requirements=None, venv=None, **kwargs):
                 print(f"Virtual environment '{venv}' not found.")
                 return  # Exit early if specified venv does not exist
 
-        else:  # Search for any virtual environment if venv not given
-                print("Virtual environment not found.")
-                # ... (rest of the guidance code remains the same)
-                return
+        else:  # break
+            print("Virtual environment name not  provided.")
+            return
 
         # Determine OS-specific activation script
         if platform.system() == "Windows":
@@ -101,8 +99,12 @@ def main():
     # 'install' command
     install_parser = subparsers.add_parser("install")
     install_parser.add_argument("project_path", nargs="?", default=os.getcwd())
-    install_parser.add_argument('-r', '--requirements', type=str, help="Path to requirements.txt")
-    install_parser.add_argument('-v', '--venv', type=str, help="Name of the virtual environment")
+    install_parser.add_argument(
+        "-r", "--requirements", type=str, help="Path to requirements.txt"
+    )
+    install_parser.add_argument(
+        "-v", "--venv", type=str, help="Name of the virtual environment"
+    )
     install_parser.set_defaults(func=install_dependencies)
 
     args = parser.parse_args()
@@ -111,7 +113,6 @@ def main():
         args.func(**vars(args))
     except Exception as e:
         logging.error(f"An error occurred: {e}")
-
 
 
 if __name__ == "__main__":
