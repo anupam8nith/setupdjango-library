@@ -7,8 +7,7 @@ setup(
     author='Anupam Kumar', 
     author_email='anupamkumar.nith@gmail.com',  
     packages=find_packages(),             # Auto-find the 'setupdjango' package
-    install_requires=[                    # Required dependencies
-        'Django',
+    install_requires=[            
         'cookiecutter',
         'argparse' 
     ],

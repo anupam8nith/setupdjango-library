@@ -40,7 +40,7 @@ def create_project(project_name, project_path, **kwargs):
     except OSError as e:
         logging.error("Error accessing the template or project path: %s", e)
     except Exception as e:
-        logging.error("An unexpected error occurred: %s", e)
+        raise
 
 
 def install_dependencies(project_path, requirements=None, venv=None, **kwargs):
@@ -117,4 +117,5 @@ def main():
 
 if __name__ == "__main__":
     print("Creating Project Setup")
+    create_project("test_fn", ".")
     main()
