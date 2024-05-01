@@ -1,0 +1,2 @@
+[console_scripts]
+setuptemplate = setuptemplate.__init__:main

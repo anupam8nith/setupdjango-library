@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages 
 
 setup(
-    name='setupdjango',               
+    name='setuptemplate',               
     version='0.1.0',                  # Initial version
     description='A tool to create ready-to-code Django projects', 
     author='Anupam Kumar', 
@@ -13,7 +13,7 @@ setup(
     ],
     entry_points={ 
         'console_scripts': [
-            'setupdjango=setupdjango.__init__:main'   # Entry point for commands
+            'setuptemplate=setuptemplate.__init__:main'   # Entry point for commands
         ]
     }
 )

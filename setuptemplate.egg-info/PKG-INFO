@@ -1,0 +1,9 @@
+Metadata-Version: 2.1
+Name: setuptemplate
+Version: 0.1.0
+Summary: A tool to create ready-to-code Django projects
+Author: Anupam Kumar
+Author-email: anupamkumar.nith@gmail.com
+License-File: LICENSE.txt
+Requires-Dist: cookiecutter
+Requires-Dist: argparse

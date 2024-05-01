@@ -1,0 +1,17 @@
+CHANGELOG.txt
+LICENSE.txt
+MANIFEST.in
+README.txt
+setup.py
+setupdjango.egg-info/SOURCES.txt
+setupdjango.egg-info/dependency_links.txt
+setupdjango.egg-info/entry_points.txt
+setupdjango.egg-info/requires.txt
+setupdjango.egg-info/top_level.txt
+setuptemplate/__init__.py
+setuptemplate.egg-info/PKG-INFO
+setuptemplate.egg-info/SOURCES.txt
+setuptemplate.egg-info/dependency_links.txt
+setuptemplate.egg-info/entry_points.txt
+setuptemplate.egg-info/requires.txt
+setuptemplate.egg-info/top_level.txt
