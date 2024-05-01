@@ -117,5 +117,4 @@ def main():
 
 if __name__ == "__main__":
     print("Creating Project Setup")
-    create_project("test_fn", ".")
     main()
