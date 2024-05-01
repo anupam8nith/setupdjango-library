@@ -118,21 +118,20 @@ def main():
 
     if args.subcommand == "at":
         if args.project_path:  # Path given directly
-            print("Select your framework:")
+            print("\nSelect your framework:")
             print("1. Django")
             print("2. Flask")
-            print("3. FastAPI")
-            print()
+            print("3. FastAPI\n")
 
             while True:
                 try:
-                    choice = int(input("Enter your choice (1-3): "))
+                    choice = int(input("Enter your choice (1-3): \n"))
                     if 1 <= choice <= 3:
                         break
                     else:
-                        print("Invalid choice. Please select between 1 and 3.")
+                        print("Invalid choice. Please select between 1 and 3.\n")
                 except ValueError:
-                    print("Invalid input. Please enter a number.")
+                    print("Invalid input. Please enter a number.\n")
 
             framework_mapping = {1: "Django", 2: "Flask", 3: "FastAPI"}
             selected_framework = framework_mapping[choice]
