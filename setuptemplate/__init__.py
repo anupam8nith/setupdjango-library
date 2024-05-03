@@ -62,13 +62,9 @@ def install_dependencies(project_path, requirements=None, venv=None):
     """
     project_path = Path(project_path)
     if requirements is None:
-        requirements_file = project_path / "requirements.txt"
+        requirements_file = project_path / "requirements.txt"  # Join with 'requirements.txt'
     else:
         requirements_file = Path(requirements)
-
-    if not requirements_file.exists():
-        logging.error(f"Requirements file not found at: {requirements_file}")
-        return
 
     if venv:
         venv_path = project_path / venv
@@ -137,7 +133,11 @@ def main():
             selected_framework = framework_mapping[choice]
             args.func(args.project_path, selected_framework)
         else:
+            print(**vars(args))
             args.func(**vars(args))  # No path, use interactive selection
+    elif args.subcommand == "install":
+        # Directly pass necessary arguments
+        install_dependencies(project_path=args.project_path, requirements=args.requirements, venv=args.venv)
     else:
         # Handle other commands (if any)
         args.func(**vars(args))
