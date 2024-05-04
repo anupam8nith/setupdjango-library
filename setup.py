@@ -9,7 +9,8 @@ setup(
     packages=find_packages(),             # Auto-find the 'setupdjango' package
     install_requires=[            
         'cookiecutter',
-        'argparse' 
+        'argparse',
+        'gitpython'
     ],
     entry_points={ 
         'console_scripts': [
